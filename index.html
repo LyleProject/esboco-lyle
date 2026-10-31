@@ -60,15 +60,17 @@ p{margin:0}
 .no-js .loader{display:none}
 
 /* ---------- cursor ---------- */
-.cursor{position:fixed;inset:0;pointer-events:none;z-index:90;mix-blend-mode:difference;display:none}
-.has-cursor .cursor{display:block}
-.cursor__dot,.cursor__ring{position:absolute;left:0;top:0;border-radius:50%;will-change:transform}
+/* cada peça do cursor é uma camada pequena: nada de camada em tela cheia se misturando a cada quadro */
+.cursor{display:none}
+.has-cursor .cursor{display:contents}
+.cursor__dot,.cursor__ring{position:fixed;left:0;top:0;z-index:90;pointer-events:none;mix-blend-mode:difference;border-radius:50%;will-change:transform}
 .cursor__dot{width:6px;height:6px;margin:-3px 0 0 -3px;background:#fff}
 .cursor__ring{width:38px;height:38px;margin:-19px 0 0 -19px;border:1px solid #fff;transition:width .5s var(--ease),height .5s var(--ease),margin .5s var(--ease),background-color .5s var(--ease)}
 .cursor.is-link .cursor__ring{width:78px;height:78px;margin:-39px 0 0 -39px;background:#fff}
 
 /* ---------- grão ---------- */
-.grain{position:fixed;inset:-50%;z-index:80;pointer-events:none;opacity:.07;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");animation:grain 1.2s steps(6) infinite}
+.grain{position:fixed;inset:-10%;will-change:transform;z-index:80;pointer-events:none;opacity:.07;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");animation:grain 1.2s steps(6) infinite}
+@media (hover:none){.grain{animation:none}}
 @keyframes grain{0%{transform:translate(0,0)}20%{transform:translate(-4%,3%)}40%{transform:translate(3%,-5%)}60%{transform:translate(-6%,-2%)}80%{transform:translate(5%,4%)}100%{transform:translate(0,0)}}
 
 /* ---------- menu ---------- */
@@ -144,8 +146,11 @@ p{margin:0}
 .no-js .step p{max-height:none;opacity:1}
 .forma__art{position:relative;overflow:hidden}
 .forma__art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:100% 50%}
-.forma__raw{filter:blur(22px) brightness(.32) contrast(.8);transform:scale(1.08)}
-.slice{position:absolute;inset:0;will-change:transform}
+/* versão desfocada já pronta em arquivo: o navegador não precisa calcular o desfoque */
+.forma__raw{transform:scale(1.08)}
+/* cada fatia tem só a altura da faixa, para não criar 14 camadas do tamanho do painel */
+.slice{position:absolute;left:0;right:0;overflow:hidden}
+.forma__art .slice img{inset:auto 0 auto 0;width:100%}
 .forma__art::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--ink) 0%,rgba(10,10,10,0) 30%),linear-gradient(0deg,var(--ink),rgba(10,10,10,0) 18%);pointer-events:none}
 .forma__bar{position:absolute;left:var(--gl);right:var(--gr);bottom:calc(28px + env(safe-area-inset-bottom,0px));height:1px;background:var(--line);z-index:3}
 .forma__bar i{position:absolute;inset:0;background:var(--accent);transform:scaleX(0);transform-origin:left}
@@ -160,7 +165,8 @@ p{margin:0}
 /* ---------- capacidades (seção clara) ---------- */
 .cap{--cbg:var(--bone);--cfg:var(--ink);--cmute:#55534e;--cline:#cfccc4;position:relative;background:var(--cbg);color:var(--cfg);padding-block:clamp(110px,14vw,200px);overflow:hidden;isolation:isolate}
 .cap .eyebrow{color:var(--cmute)}
-.cap__peg{position:absolute;right:-4vw;top:6%;width:min(52vw,760px);z-index:-1;mix-blend-mode:multiply;pointer-events:none}
+.cap__peg{position:absolute;right:-4vw;top:6%;width:min(52vw,760px);z-index:-1;pointer-events:none;will-change:transform}
+/* o Pégaso vem com a "multiplicação" já aplicada (tinta preta com transparência): mesmo visual, sem mistura a cada quadro */
 .cap__peg img{width:100%;height:auto}
 .cap__inner{display:grid;gap:56px;max-width:1500px}
 .cap__inner h2{font-size:clamp(2.8rem,8vw,8.8rem);line-height:.88;letter-spacing:-.055em}
@@ -197,9 +203,12 @@ p{margin:0}
 .vida{position:relative;background:var(--ink)}
 .vida__pin{position:relative;height:100svh;overflow:hidden;isolation:isolate}
 .vida__pin img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:55% 50%}
+.vida__stage{position:absolute;inset:0;will-change:transform}
 .vida__mono{filter:grayscale(1) contrast(1.1) brightness(.7)}
-.vida__color{clip-path:circle(160% at 58% 62%)}
-.js .vida__color{clip-path:circle(0% at 58% 62%)}
+/* a cor entra por um círculo que só muda de escala (sem recalcular recorte a cada quadro) */
+.vida__reveal{position:absolute;inset:0;overflow:hidden;will-change:transform}
+.js .vida__reveal{visibility:hidden;border-radius:50%}
+.vida__reveal .vida__color{will-change:transform}
 .vida__shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,10,10,.65),rgba(10,10,10,0) 55%),linear-gradient(0deg,rgba(10,10,10,.6),rgba(10,10,10,0) 40%)}
 .vida__copy{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;gap:24px;padding-block:96px calc(56px + env(safe-area-inset-bottom,0px))}
 .vida__copy h2{font-size:clamp(3rem,10vw,10rem);line-height:.86;letter-spacing:-.055em}
@@ -239,7 +248,7 @@ p{margin:0}
   .loader{display:none}
   .js .manifesto__text .w{opacity:1}
   .js .tubo__copy{opacity:1}
-  .js .vida__color{clip-path:circle(160% at 58% 62%)}
+  .js .vida__reveal{visibility:visible;border-radius:0}
 }
 </style>
 </head>
@@ -318,7 +327,7 @@ p{margin:0}
         </ol>
       </div>
       <div class="forma__art" role="img" aria-label="Rosto de estátua em mármore sendo revelado em camadas">
-        <img class="forma__raw" src="davi.jpg" alt="">
+        <img class="forma__raw" src="davi-bruto.jpg" alt="" decoding="async">
         <div class="slices" data-slices="14"></div>
       </div>
       <div class="forma__bar" aria-hidden="true"><i></i></div>
@@ -326,7 +335,7 @@ p{margin:0}
   </section>
 
   <section class="cap" id="capacidades">
-    <div class="cap__peg" aria-hidden="true"><img src="pegaso.jpg" alt=""></div>
+    <div class="cap__peg" aria-hidden="true"><img src="pegaso.webp" alt="" width="1238" height="2200" decoding="async"></div>
     <div class="cap__inner wrap">
       <p class="eyebrow">Capacidades</p>
       <h2>Ambição<br>com <em>método.</em></h2>
@@ -365,7 +374,7 @@ p{margin:0}
 
   <section class="tubo" id="precisao">
     <div class="tubo__pin">
-      <img class="tubo__img" src="tubo.jpg" alt="Surfista dentro do tubo de uma onda, em preto e branco">
+      <img class="tubo__img" src="tubo.jpg" alt="Surfista dentro do tubo de uma onda, em preto e branco" decoding="async">
       <div class="tubo__mask" aria-hidden="true"><span class="tubo__word">PREC<span data-origin>I</span>SÃO</span></div>
       <div class="tubo__copy wrap">
         <h2>Precisão<br>no <em>caos.</em></h2>
@@ -376,8 +385,10 @@ p{margin:0}
 
   <section class="vida" id="vida">
     <div class="vida__pin">
-      <img class="vida__mono" src="onda.jpg" alt="" aria-hidden="true">
-      <img class="vida__color" src="onda.jpg" alt="Surfista descendo uma onda azul gigante">
+      <div class="vida__stage">
+        <img class="vida__mono" src="onda.jpg" alt="" aria-hidden="true" decoding="async">
+        <div class="vida__reveal"><img class="vida__color" src="onda.jpg" alt="Surfista descendo uma onda azul gigante" decoding="async"></div>
+      </div>
       <div class="vida__shade"></div>
       <div class="vida__copy wrap">
         <p class="eyebrow">Lançamento</p>
@@ -447,8 +458,9 @@ p{margin:0}
   for (let i = 0; i < N; i++) {
     const s = document.createElement('div');
     s.className = 'slice';
-    s.style.clipPath = `inset(${(i / N) * 100}% 0 ${100 - ((i + 1) / N) * 100}% 0)`;
-    s.innerHTML = '<img src="davi.jpg" alt="">';
+    s.style.top = `${(i / N) * 100}%`;
+    s.style.height = `${100 / N}%`;
+    s.innerHTML = `<img src="davi.jpg" alt="" decoding="async" style="top:${-i * 100}%;height:${N * 100}%">`;
     slicesEl.appendChild(s);
   }
 
@@ -520,7 +532,7 @@ p{margin:0}
   }`;
   const planes = [];
   function makePlane(canvas) {
-    const gl = canvas.getContext('webgl', { antialias: false, premultipliedAlpha: false });
+    const gl = canvas.getContext('webgl', { antialias: false, alpha: false, depth: false, stencil: false, premultipliedAlpha: false, preserveDrawingBuffer: false });
     if (!gl) return;
     const sh = (type, src) => { const x = gl.createShader(type); gl.shaderSource(x, src); gl.compileShader(x); return x; };
     const pr = gl.createProgram();
@@ -547,13 +559,16 @@ p{margin:0}
         host.addEventListener('pointermove', e => { const r = canvas.getBoundingClientRect(); P.tm = [(e.clientX - r.left) / r.width, 1 - (e.clientY - r.top) / r.height]; P.th = 1; });
         host.addEventListener('pointerleave', () => { P.th = 0; });
       }
-      new IntersectionObserver(([en]) => { P.visible = en.isIntersecting; }).observe(canvas);
+      new IntersectionObserver(([en]) => { P.visible = en.isIntersecting; }, { rootMargin: '10% 0px' }).observe(canvas);
       planes.push(P); size(P); draw(P, 0); canvas.classList.add('is-on');
     };
     image.src = canvas.dataset.src;
   }
+  // Resolução da água se adapta ao aparelho: começa leve no celular e baixa sozinha se os quadros pesarem.
+  let glQuality = fine ? 1 : .75, glSkip = false;
+  const glMaxDpr = fine ? 1.5 : 1;
   function size(P) {
-    const dpr = Math.min(devicePixelRatio || 1, 1.5);
+    const dpr = Math.min(devicePixelRatio || 1, glMaxDpr) * glQuality;
     const w = Math.round(P.canvas.clientWidth * dpr), h = Math.round(P.canvas.clientHeight * dpr);
     if (P.canvas.width !== w || P.canvas.height !== h) { P.canvas.width = w; P.canvas.height = h; P.gl.viewport(0, 0, w, h); }
     P.gl.uniform2f(P.U.res, w, h);
@@ -565,11 +580,24 @@ p{margin:0}
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   }
   document.querySelectorAll('canvas.gl').forEach(makePlane);
-  addEventListener('resize', () => planes.forEach(size));
+  let resizeT;
+  addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => planes.forEach(size), 150); });
   const fpsEl = document.querySelector('[data-fps]');
-  let frames = 0, last = performance.now();
+  let frames = 0, last = performance.now(), prev = last, slow = 0, tick = 0, settled = false;
   if (!reduce) (function loop(now) {
-    planes.forEach(P => { if (P.visible) draw(P, now / 1000); });
+    const dt = now - prev; prev = now; tick++;
+    // ajuste automático: mede ~2 s de quadros com a água visível; se passar de 22 ms em média, reduz a resolução
+    if (!settled && !document.hidden && planes.some(P => P.visible)) {
+      if (dt > 22 && dt < 200) slow++;
+      if (tick % 120 === 0) {
+        if (slow > 50) {
+          if (glQuality > .5) { glQuality -= .25; planes.forEach(size); }
+          else glSkip = true;
+        } else if (tick > 600) settled = true;
+        slow = 0;
+      }
+    }
+    if (!glSkip || tick % 2 === 0) planes.forEach(P => { if (P.visible) draw(P, now / 1000); });
     frames++; if (now - last > 1000) { fpsEl.textContent = Math.min(120, Math.round(frames * 1000 / (now - last))); frames = 0; last = now; }
     requestAnimationFrame(loop);
   })(performance.now());
@@ -589,19 +617,43 @@ p{margin:0}
   }
 
   /* ---------- LYLE gigante: peso da letra segue o cursor ---------- */
+  // Só trabalha com o final da página na tela, no máximo uma vez por quadro, lendo todas as posições antes de escrever.
   const bigLetters = [...document.querySelectorAll('.fim__word span')];
-  if (fine && !reduce) addEventListener('pointermove', e => {
-    bigLetters.forEach(l => {
-      const r = l.getBoundingClientRect();
-      const d = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2));
-      const k = Math.max(0, 1 - d / (innerWidth * .35));
-      l.style.fontVariationSettings = `"wght" ${Math.round(300 + 400 * k)}`;
-    });
-  });
+  if (fine && !reduce) {
+    let near = false, queued = false, px = 0, py = 0;
+    new IntersectionObserver(([en]) => { near = en.isIntersecting; }).observe(document.querySelector('.fim__word'));
+    addEventListener('pointermove', e => {
+      if (!near) return;
+      px = e.clientX; py = e.clientY;
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => {
+        queued = false;
+        const rects = bigLetters.map(l => l.getBoundingClientRect());
+        rects.forEach((r, i) => {
+          const d = Math.hypot(px - (r.left + r.width / 2), py - (r.top + r.height / 2));
+          const k = Math.max(0, 1 - d / (innerWidth * .35));
+          bigLetters[i].style.fontVariationSettings = `"wght" ${Math.round(300 + 400 * k)}`;
+        });
+      });
+    }, { passive: true });
+  }
 
   /* ---------- menu some ao descer ---------- */
-  const nav = document.querySelector('.nav'); let lastY = 0;
-  addEventListener('scroll', () => { const y = scrollY; nav.classList.toggle('is-hidden', y > lastY && y > 200); lastY = y; }, { passive: true });
+  // Com GSAP, quem informa a posição é o próprio ScrollTrigger (mais abaixo): ler scrollY à parte forçava recálculo da página.
+  const nav = document.querySelector('.nav');
+  let navHidden = false;
+  const setNav = hide => { if (hide !== navHidden) { navHidden = hide; nav.classList.toggle('is-hidden', hide); } };
+  if (!hasGsap) {
+    let lastY = 0;
+    addEventListener('scroll', () => { const y = scrollY; setNav(y > lastY && y > 200); lastY = y; }, { passive: true });
+  }
+
+  /* ---------- fotos já decodificadas antes de aparecer (evita tranco na primeira vez) ---------- */
+  addEventListener('load', () => {
+    const idle = window.requestIdleCallback || (f => setTimeout(f, 300));
+    idle(() => document.querySelectorAll('main img').forEach(img => img.decode?.().catch(() => {})));
+  });
 
   if (!hasGsap) { document.querySelector('.loader')?.remove(); return; }
   gsap.registerPlugin(ScrollTrigger);
@@ -611,9 +663,14 @@ p{margin:0}
     return;
   }
 
+  // A barra de endereço do celular aparecendo e sumindo não recalcula a página inteira (era um dos trancos).
+  ScrollTrigger.config({ ignoreMobileResize: true });
+  ScrollTrigger.create({ start: 0, end: 'max', onUpdate: s => setNav(s.direction === 1 && s.scroll() > 200) });
+
   /* ---------- rolagem suave ---------- */
-  if (typeof Lenis !== 'undefined') {
-    const lenis = new Lenis({ duration: 1.25, easing: t => 1 - Math.pow(1 - t, 4), smoothWheel: true });
+  // Só na roda do mouse; no toque o celular rola nativo, que é o mais fluido. Segue o dedo/roda por proporção, sem atraso fixo.
+  if (typeof Lenis !== 'undefined' && fine) {
+    const lenis = new Lenis({ lerp: .11, smoothWheel: true, syncTouch: false });
     lenis.on('scroll', ScrollTrigger.update);
     gsap.ticker.add(t => lenis.raf(t * 1000));
     gsap.ticker.lagSmoothing(0);
@@ -643,7 +700,17 @@ p{margin:0}
   ScrollTrigger.create({ trigger: '.hero', start: 'top top', end: 'bottom top', onUpdate: s => { const P = heroPlane(); if (P) P.scroll = s.progress; } });
 
   /* ---------- manifesto ---------- */
-  gsap.to('.manifesto__text .w', { opacity: 1, stagger: .06, ease: 'none', scrollTrigger: { trigger: '.manifesto__text', start: 'top 78%', end: 'bottom 42%', scrub: true } });
+  // Palavras acendendo em sequência: mesma conta do efeito anterior, mas só escreve na palavra quando o valor dela muda.
+  const words = gsap.utils.toArray('.manifesto__text .w'), wOp = words.map(() => -1);
+  const WD = .5, WS = .06, WT = (words.length - 1) * WS + WD;
+  const paintWords = p => {
+    const t = p * WT;
+    words.forEach((w, i) => {
+      const v = Math.round((.16 + .84 * Math.min(1, Math.max(0, (t - i * WS) / WD))) * 50) / 50;
+      if (v !== wOp[i]) { wOp[i] = v; w.style.opacity = v; }
+    });
+  };
+  ScrollTrigger.create({ trigger: '.manifesto__text', start: 'top 78%', end: 'bottom 42%', onUpdate: s => paintWords(s.progress), onRefresh: s => paintWords(s.progress) });
   gsap.fromTo('.manifesto__bg', { yPercent: -8, scale: 1.1 }, { yPercent: 8, scale: 1, ease: 'none', scrollTrigger: { trigger: '.manifesto', start: 'top bottom', end: 'bottom top', scrub: true } });
   gsap.from('.manifesto__sign > div', { y: 40, opacity: 0, stagger: .12, duration: 1.2, ease: E, scrollTrigger: { trigger: '.manifesto__sign', start: 'top 88%' } });
 
@@ -651,8 +718,9 @@ p{margin:0}
   const slices = gsap.utils.toArray('.slice');
   const order = slices.map((s, i) => i).sort(() => Math.random() - .5);
   const steps = gsap.utils.toArray('.step');
-  const tl = gsap.timeline({ scrollTrigger: { trigger: '.forma', start: 'top top', end: '+=300%', pin: '.forma__pin', scrub: 1,
-    onUpdate: s => { const k = Math.min(3, Math.floor(s.progress * 4)); steps.forEach((st, i) => st.classList.toggle('is-on', i === k)); } } });
+  let activeStep = 0;
+  const tl = gsap.timeline({ scrollTrigger: { trigger: '.forma', start: 'top top', end: '+=300%', pin: '.forma__pin', scrub: 1, anticipatePin: 1,
+    onUpdate: s => { const k = Math.min(3, Math.floor(s.progress * 4)); if (k !== activeStep) { activeStep = k; steps.forEach((st, i) => st.classList.toggle('is-on', i === k)); } } } });
   order.forEach((idx, j) => {
     tl.fromTo(slices[idx], { xPercent: (idx % 2 ? -1 : 1) * (35 + (idx * 7) % 30), opacity: 0 }, { xPercent: 0, opacity: 1, duration: 1, ease: 'power3.out' }, j * .55);
   });
@@ -677,7 +745,7 @@ p{margin:0}
     return Math.max(innerWidth, vh()) / (b.width * .35);
   };
   let zoom = setOrigin();
-  const tubo = gsap.timeline({ scrollTrigger: { trigger: '.tubo', start: 'top top', end: '+=220%', pin: '.tubo__pin', scrub: 1,
+  const tubo = gsap.timeline({ scrollTrigger: { trigger: '.tubo', start: 'top top', end: '+=220%', pin: '.tubo__pin', scrub: 1, anticipatePin: 1,
     onRefreshInit: () => { zoom = setOrigin(); } } });
   tubo.fromTo('.tubo__img', { scale: 1.35 }, { scale: 1, duration: 1, ease: 'power2.out' }, 0)
       .to(mask, { scale: () => zoom, duration: .8, ease: 'power3.in' }, .1)
@@ -686,10 +754,27 @@ p{margin:0}
       .from('.tubo__copy > *', { y: 50, stagger: .08, duration: .3 }, '<');
 
   /* ---------- vida: a cor invade a foto ---------- */
-  const vida = gsap.timeline({ scrollTrigger: { trigger: '.vida', start: 'top top', end: '+=170%', pin: '.vida__pin', scrub: 1 } });
-  vida.to('.vida__color', { clipPath: 'circle(160% at 58% 62%)', duration: 1, ease: 'power2.in' })
-      .fromTo('.vida__mono', { scale: 1.12 }, { scale: 1, duration: 1, ease: 'none' }, 0)
-      .fromTo('.vida__color', { scale: 1.12 }, { scale: 1, duration: 1, ease: 'none' }, 0)
+  // Círculo de cor: um disco grande que só muda de escala, com a foto dentro compensando a escala para ficar parada.
+  const reveal = document.querySelector('.vida__reveal'), colorImg = reveal.querySelector('img');
+  const bloom = { s: 0 };
+  const layoutReveal = () => {
+    const W = reveal.parentElement.clientWidth, H = reveal.parentElement.clientHeight;
+    const cx = W * .58, cy = H * .62, R = 2 * 1.6 * Math.sqrt((W * W + H * H) / 2);
+    Object.assign(reveal.style, { inset: 'auto', left: `${cx - R / 2}px`, top: `${cy - R / 2}px`, width: `${R}px`, height: `${R}px` });
+    Object.assign(colorImg.style, { inset: 'auto', left: `${R / 2 - cx}px`, top: `${R / 2 - cy}px`, width: `${W}px`, height: `${H}px`, transformOrigin: `${cx}px ${cy}px` });
+    paintReveal();
+  };
+  const paintReveal = () => {
+    const s = Math.max(bloom.s, 1e-4);
+    reveal.style.visibility = bloom.s < .002 ? 'hidden' : 'visible';
+    reveal.style.transform = `scale(${s})`;
+    colorImg.style.transform = `scale(${1 / s})`;
+  };
+  layoutReveal();
+  const vida = gsap.timeline({ scrollTrigger: { trigger: '.vida', start: 'top top', end: '+=170%', pin: '.vida__pin', scrub: 1, anticipatePin: 1,
+    onRefresh: layoutReveal } });
+  vida.to(bloom, { s: 1, duration: 1, ease: 'power2.in', onUpdate: paintReveal })
+      .fromTo('.vida__stage', { scale: 1.12 }, { scale: 1, duration: 1, ease: 'none' }, 0)
       .from('.vida__copy > *', { y: 60, opacity: 0, stagger: .1, duration: .5 }, .45);
 
   /* ---------- contato ---------- */
